@@ -1,0 +1,15 @@
+# Core dependencies
+Flask>=3.1.0  # needed for web routes
+python-dotenv>=1.0.0  # for loading environment variables
+
+# GitHub integration
+PyGithub>=2.1.1  # for GitHub API interactions
+
+# OpenAI integration
+openai>=1.12.0  # for OpenAI API interactions
+
+# Optional but recommended
+requests>=2.31.0  # underlying HTTP library used by both PyGithub and openai 
+    
+# Database
+psycopg2-binary>=2.9.6  # for PostgreSQL database interactions
