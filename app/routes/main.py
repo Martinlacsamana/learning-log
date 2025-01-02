@@ -3,6 +3,8 @@ from datetime import datetime
 from app.services.github_service import fetch_github_commits
 from app.services.openai_service import generate_commit_summary
 from app.services.learning_log_service import LearningLogService
+import os
+from pathlib import Path
 
 main_bp = Blueprint('main', __name__)
 
@@ -77,3 +79,12 @@ def get_learning_logs():
             'status': 'error',
             'message': str(e)
         }), 500 
+
+@main_bp.route('/debug-env')
+def debug_env():
+    return jsonify({
+        'has_token': bool(os.getenv('GITHUB_TOKEN')),
+        'token_length': len(os.getenv('GITHUB_TOKEN', '')),
+        'env_path': str(Path(__file__).resolve().parent.parent.parent / '.env'),
+        'exists': (Path(__file__).resolve().parent.parent.parent / '.env').exists()
+    }) 
