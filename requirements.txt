@@ -13,3 +13,6 @@ requests>=2.31.0  # underlying HTTP library used by both PyGithub and openai
     
 # Database
 psycopg2-binary>=2.9.6  # for PostgreSQL database interactions
+
+# Database
+flask-sqlalchemy>=3.0.0  # for SQLAlchemy integration with Flask
