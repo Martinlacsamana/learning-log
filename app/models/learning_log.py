@@ -10,5 +10,5 @@ class LearningLog(db.Model):
     lines_added = db.Column(db.Integer)
     lines_deleted = db.Column(db.Integer)
     files_changed = db.Column(db.JSON)  # store file changes as JSON
-    technical_notes = db.Column(db.Text, nullable=True)  # optional field for specific technical details
+    # technical_notes = db.Column(db.Text, nullable=True)  # optional field for specific technical details
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
