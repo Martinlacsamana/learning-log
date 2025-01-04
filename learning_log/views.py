@@ -48,24 +48,21 @@ def fetch_github_commits(username=None, since=None):
 def store_learning_log(commit_data):
     """Store a single learning log entry"""
     try:
-        if LearningLog.query.filter_by(commit_hash=commit_data['commit_hash']).first():
+        if LearningLog.find_by_commit_hash(commit_data['commit_hash']):
             return False
 
-        log_entry = LearningLog(
-            commit_hash=commit_data['commit_hash'],
-            commit_message=commit_data['commit_message'],
-            commit_date=datetime.fromisoformat(commit_data['commit_date'].replace('Z', '+00:00')),
-            repository=commit_data['repository'],
-            lines_added=sum(f['additions'] for f in commit_data['files_changed']),
-            lines_deleted=sum(f['deletions'] for f in commit_data['files_changed']),
-            files_changed=commit_data['files_changed']
-        )
-        
-        db.session.add(log_entry)
-        db.session.commit()
+        LearningLog.create({
+            'commit_hash': commit_data['commit_hash'],
+            'commit_message': commit_data['commit_message'],
+            'commit_date': datetime.fromisoformat(commit_data['commit_date'].replace('Z', '+00:00')),
+            'repository': commit_data['repository'],
+            'lines_added': sum(f['additions'] for f in commit_data['files_changed']),
+            'lines_deleted': sum(f['deletions'] for f in commit_data['files_changed']),
+            'files_changed': commit_data['files_changed']
+        })
         return True
     except Exception as e:
-        db.session.rollback()
+        print(f"Error storing log: {e}")
         return False
 
 def classify_commit(commit_message, code_changes):

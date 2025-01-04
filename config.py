@@ -1,5 +1,4 @@
 import os
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False 
+    MONGO_URI = os.getenv('MONGODB_URL', 'mongodb://localhost:27017/learning_log') 
