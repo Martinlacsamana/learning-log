@@ -74,13 +74,38 @@ class CommitExtractor:
         return jsonify(results)
     
     def test_extractor(self, username=None):
-        """Test the extractor: fetch 30 commits from github"""
-        # use instance github client instead of creating new one
+        """Test the extractor: fetch commits from github, excluding specific repos"""
+        # Repos to exclude
+        EXCLUDED_REPOS = [
+            'fa23-lab-Martinlacsamana',
+            'fa23-proj1-a-khani',
+            'fa23-proj2-Martinlacsamana',
+            'fa23-proj3-a-khani',
+            'fa23-proj4-Martinlacsamana',
+            'prog-02-programming-practice-starter',
+            'programming-assignment-1-modal-medley-Martinlacsamana',
+            'programming-assignment-2-programming-practice-Martinlacsamana',
+            'programming-assignment-3-speedy-smarts-Martinlacsamana',
+            'programming-assignment-3-speedy-smarts-starter',
+            'sp24-proj2-martin',
+            'fa24-proj0-Martinlacsamana',
+            'fa24-proj1-Martinlacsamana',
+            'fa24-proj2-Martinlacsamana',
+            'fa24-proj3-Martinlacsamana',
+            'fa24-proj4-Martinlacsamana',
+            'fa24-proj5-Martinlacsamana',
+            'fa24-proj6-Martinlacsamana'
+        ]
+        
         user = self.github.get_user(username) if username else self.github.get_user()
         
         commits_data = []
         while len(commits_data) < 10:
             for repo in user.get_repos():
+                # Skip if repo is in excluded list
+                if repo.name in EXCLUDED_REPOS:
+                    continue
+                
                 for commit in repo.get_commits(author=user.login):
                     file_changes = [{
                         'filename': f.filename,
@@ -96,5 +121,10 @@ class CommitExtractor:
                         'files_changed': file_changes
                     })
                     print('Commit message: ', commit.commit.message)
+                    
+                    if len(commits_data) >= 30:
+                        break
+                if len(commits_data) >= 30:
+                    break
 
         return commits_data
