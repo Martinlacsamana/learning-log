@@ -5,6 +5,9 @@ from datetime import datetime
 from ..models import LearningLog
 import os
 from flask import jsonify
+import logging
+
+logger = logging.getLogger(__name__)
 
 class CommitExtractor:
     def __init__(self, github_token):
@@ -128,3 +131,50 @@ class CommitExtractor:
                     break
 
         return commits_data
+    
+    def test_db(self):
+        """Test the database by creating and retrieving a sample learning log"""
+        try:
+            logger.debug("Starting database test...")
+            
+            sample_data = {
+                'commit_hash': 'test123',
+                'commit_message': 'Test commit for database verification',
+                'commit_date': datetime.utcnow(),
+                'commit_type': 'TEST',
+                'repository': 'test-repo',
+                'lines_added': 10,
+                'lines_deleted': 5,
+                'files_changed': 1
+            }
+
+            logger.debug("Attempting to create learning log...")
+            result = LearningLog.create(sample_data)
+            logger.debug(f"Insert result: {result}")
+            
+            logger.debug("Attempting to retrieve learning log...")
+            retrieved = LearningLog.find_by_commit_hash('test123')
+            logger.debug(f"Retrieved data: {retrieved}")
+            
+            if retrieved:
+                return jsonify({
+                    'status': 'success',
+                    'message': 'Database test successful',
+                    'data': {
+                        'commit_hash': retrieved['commit_hash'],
+                        'commit_message': retrieved['commit_message'],
+                        'repository': retrieved['repository']
+                    }
+                })
+            else:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Could not retrieve test entry'
+                })
+            
+        except Exception as e:
+            logger.error(f"Database test failed: {str(e)}", exc_info=True)
+            return jsonify({
+                'status': 'error',
+                'message': f'Database test failed: {str(e)}'
+            })

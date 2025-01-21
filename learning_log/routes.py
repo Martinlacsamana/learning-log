@@ -16,6 +16,11 @@ def testCommitExtractor():
     extractor = CommitExtractor(os.getenv('GITHUB_TOKEN'))
     return jsonify(extractor.test_extractor())
 
+@bp.route('/testDB')
+def testDB():
+    extractor = CommitExtractor(os.getenv('GITHUB_TOKEN'))
+    return extractor.test_db()
+
 @bp.route('/sync')
 def sync_logs():
     # create extractor instance with github token

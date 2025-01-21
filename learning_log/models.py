@@ -1,8 +1,8 @@
-from flask_pymongo import PyMongo
 from datetime import datetime
-from typing import List, Dict, Any  # type hints for clarity
+from learning_log import mongo
+import logging
 
-mongo = PyMongo()
+logger = logging.getLogger(__name__)
 
 class LearningLog:
     # Define document structure with type hints
@@ -14,27 +14,35 @@ class LearningLog:
         'repository': str,
         'lines_added': int,
         'lines_deleted': int,
-        'files_changed': List[Dict[str, Any]],  # array of file change objects
+        'files_changed': int,  # number of files changed
         'created_at': datetime
     }
     
     def __init__(self, **kwargs):
-        # you can add validation here if needed
         for key, value in kwargs.items():
             setattr(self, key, value)
     
     @classmethod
     def create(cls, data: dict):
-        # validate files_changed format
-        if not isinstance(data.get('files_changed'), list):
-            raise ValueError("files_changed must be a list of file changes")
+        logger.debug("Attempting to create learning log...")
+        logger.debug(f"Current app db exists: {hasattr(mongo, 'db')}")
+        
+        if hasattr(mongo, 'db'):
+            logger.debug(f"DB collections: {mongo.db.list_collection_names()}")
+        else:
+            logger.error("No db attribute found on db")
             
-        # ensure each file change has required fields
-        for file_change in data['files_changed']:
-            if not all(k in file_change for k in ('filename', 'additions', 'deletions')):
-                raise ValueError("Each file change must have filename, additions, and deletions")
+        if not isinstance(data.get('files_changed'), int):
+            logger.error("files_changed must be an integer")
+            raise ValueError("files_changed must be an integer")
         
         data['created_at'] = datetime.utcnow()
+        
+        # Create collection if it doesn't exist
+        if 'learning_logs' not in mongo.db.list_collection_names():
+            logger.debug("Creating learning_logs collection...")
+            mongo.db.create_collection('learning_logs')
+            
         return mongo.db.learning_logs.insert_one(data)
     
     @classmethod
@@ -43,7 +51,6 @@ class LearningLog:
     
     @classmethod
     def get_all(cls):
-        # returns cursor that can be iterated
         return mongo.db.learning_logs.find().sort('commit_date', -1)
     
     @classmethod
