@@ -63,4 +63,20 @@ class LearningLog:
     
     @classmethod
     def find_by_type(cls, commit_type):
-        return mongo.db.learning_logs.find({'commit_type': commit_type}) 
+        return mongo.db.learning_logs.find({'commit_type': commit_type})
+    
+    @classmethod
+    def find_unclassified(cls, limit=5):  # default to 15 for safety
+        """Find a batch of unclassified commits
+        
+        Args:
+            limit (int, optional): Maximum number of commits to return (default: 15)
+        """
+        # Apply limit in the query itself for better performance
+        pipeline = [
+            {'$match': {'commit_type': None}},  # find unclassified
+            {'$sort': {'commit_date': -1}},     # newest first
+            {'$limit': limit}                   # limit at database level
+        ]
+        
+        return mongo.db.learning_logs.aggregate(pipeline) 
