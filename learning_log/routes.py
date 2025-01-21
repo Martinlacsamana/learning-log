@@ -21,12 +21,18 @@ def testDB():
     extractor = CommitExtractor(os.getenv('GITHUB_TOKEN'))
     return extractor.test_db()
 
+@bp.route('/testExtractorAndStore')
+def testExtractorAndStore():
+    extractor = CommitExtractor(os.getenv('GITHUB_TOKEN'))
+    return extractor.test_extractor_and_store()
+
 @bp.route('/sync')
 def sync_logs():
     # create extractor instance with github token
     extractor = CommitExtractor(os.getenv('GITHUB_TOKEN'))
     # call the sync_logs method
     return extractor.sync_logs()
+
 
 ''' END STAGE 1 '''
 

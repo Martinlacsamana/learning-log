@@ -7,15 +7,18 @@ logger = logging.getLogger(__name__)
 class LearningLog:
     # Define document structure with type hints
     SCHEMA = {
+        # Required fields
         'commit_hash': str,
         'commit_message': str,
         'commit_date': datetime,
-        'commit_type': str,
         'repository': str,
         'lines_added': int,
         'lines_deleted': int,
         'files_changed': int,  # number of files changed
-        'created_at': datetime
+        'created_at': datetime,
+        
+        # Optional field - will be populated by classification endpoint later
+        'commit_type': str | None  # make it optional by allowing None
     }
     
     def __init__(self, **kwargs):
@@ -32,11 +35,16 @@ class LearningLog:
         else:
             logger.error("No db attribute found on db")
             
+        # Only validate required fields
         if not isinstance(data.get('files_changed'), int):
             logger.error("files_changed must be an integer")
             raise ValueError("files_changed must be an integer")
         
+        # Set created_at timestamp
         data['created_at'] = datetime.utcnow()
+        
+        # commit_type can be None or omitted entirely
+        data.setdefault('commit_type', None)
         
         # Create collection if it doesn't exist
         if 'learning_logs' not in mongo.db.list_collection_names():
